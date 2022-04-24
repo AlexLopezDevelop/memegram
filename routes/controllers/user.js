@@ -1,4 +1,55 @@
 const mysql = require("mysql2");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+require('dotenv').config()
+
+const loginUser = async (req, res) => {
+  try {
+    const { nombre, password } = req.query;
+
+    // simulamos un SELECT * FROM users WHERE email = email a la base de datos:
+    //const user = users.find(u => u.email === email)
+
+    const connection = mysql.createConnection(DATABASE_URL);
+    // simple query
+    connection.query(
+      "SELECT id, nombre, password FROM `user` WHERE nombre = ?",
+      [nombre],
+      function (err, results, fields) {
+
+        if (err) return res.json({ error: err });
+        if (results.length === 0) return res.json({ mensaje: "error", data: "user not found" })
+
+        const user = results[0];
+        console.log(user)
+
+        // si la contraseña no es correcta, lanzamos un error al middleware de errores
+        if (!bcrypt.compareSync(password, user.password)) return res.json({
+          mensaje: "error",
+          data: "password not match"
+        })
+
+        // todo ok!
+
+        const token = jwt.sign({ id: user.id, nombre: user.nombre }, process.env.JWT_KEY);  // creamos el token con el payload y la clave secreta
+
+        res.json({
+          mensaje: "success",
+          data: { accessToken: token }
+        })
+      }
+    );
+
+    connection.end();
+
+  } catch (e) {
+    console.log(e);
+    res.json({
+      mensaje: "error",
+      data: e
+    })
+  }
+}
 
 //const DATABASE_URL = process.env.DATABASE_URL;
 const DATABASE_URL = "mysql://1894v9ezl9vj:pscale_pw_pLVpzg34Z8RdMg1hqfQ2zs1XrKHWXweFg59oitLxelQ@0qucho5k5a9k.us-east-1.psdb.cloud/memegram?ssl={\"rejectUnauthorized\":true}"
@@ -70,9 +121,14 @@ const addUser = async (req, res) => {
 
     const connection = mysql.createConnection(DATABASE_URL);
 
+    const saltRounds = 10;
+
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+
     connection.query(
       "INSERT INTO `user` ( nombre, password) VALUES (?, ?)",
-      [nombre, password],
+      [nombre, hash],
       function (err, results, fields) {
 
         if (err) return res.json({ error: err });
@@ -162,6 +218,7 @@ const deleteUser = async (req, res) => {
 }
 
 module.exports = {
+  loginUser,
   getAllUsers,
   getUserById,
   addUser,
