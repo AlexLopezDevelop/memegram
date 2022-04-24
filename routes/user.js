@@ -5,8 +5,8 @@ const userSettings = require('express').Router({ mergeParams: true });
 userSettings.get("/all", privateRoute, getAllUsers)
 userSettings.get("/", privateRoute, getUserById)
 userSettings.post("/add", addUser)
-userSettings.post("/edit", editUser)
-userSettings.delete("/delete", deleteUser)
+userSettings.post("/edit", privateRoute, editUser)
+userSettings.delete("/delete", privateRoute, deleteUser)
 userSettings.get("/login", loginUser)
 
 module.exports = userSettings;

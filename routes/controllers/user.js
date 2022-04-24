@@ -10,7 +10,7 @@ const loginUser = async (req, res) => {
     // simulamos un SELECT * FROM users WHERE email = email a la base de datos:
     //const user = users.find(u => u.email === email)
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT id, nombre, password FROM `user` WHERE nombre = ?",
@@ -51,11 +51,9 @@ const loginUser = async (req, res) => {
   }
 }
 
-//const DATABASE_URL = process.env.DATABASE_URL;
-const DATABASE_URL = "mysql://1894v9ezl9vj:pscale_pw_pLVpzg34Z8RdMg1hqfQ2zs1XrKHWXweFg59oitLxelQ@0qucho5k5a9k.us-east-1.psdb.cloud/memegram?ssl={\"rejectUnauthorized\":true}"
 const getAllUsers = async (req, res) => {
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT id, nombre FROM `user`",
@@ -87,7 +85,7 @@ const getUserById = async (req, res) => {
   try {
     let { id } = req.query;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT id, nombre FROM `user` WHERE id = ?",
@@ -119,7 +117,7 @@ const addUser = async (req, res) => {
   try {
     let { nombre, password } = req.query;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     const saltRounds = 10;
 
@@ -156,12 +154,23 @@ const editUser = async (req, res) => {
 
   try {
     let { id, nombre, password } = req.query;
+    let { USER_ID } = req;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    if (id !== USER_ID.toString()) return res.json({
+      mensaje: "error",
+      data: "solo el propieratio puede editar"
+    })
+
+    const saltRounds = 10;
+
+    const salt = bcrypt.genSaltSync(saltRounds);
+    const hash = bcrypt.hashSync(password, salt);
+
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "UPDATE `user` SET nombre = ?, password = ? WHERE id = ?",
-      [nombre, password, id],
+      [nombre, hash, id],
       function (err, results, fields) {
 
         if (err) return res.json({ error: err });
@@ -188,8 +197,15 @@ const editUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     let { id } = req.query;
+    let { USER_ID } = req;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    if (id !== USER_ID.toString()) return res.json({
+      mensaje: "error",
+      data: "solo el propieratio puede eliminar"
+    })
+
+
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "DELETE FROM `user` WHERE id = ?;",

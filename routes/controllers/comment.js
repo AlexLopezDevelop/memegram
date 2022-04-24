@@ -1,12 +1,10 @@
 const mysql = require("mysql2");
 
-const DATABASE_URL = "mysql://1894v9ezl9vj:pscale_pw_pLVpzg34Z8RdMg1hqfQ2zs1XrKHWXweFg59oitLxelQ@0qucho5k5a9k.us-east-1.psdb.cloud/memegram?ssl={\"rejectUnauthorized\":true}"
-
 const getTotalUserComments = async (req, res) => {
   let { idUser } = req.query;
 
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT COUNT(*) FROM comment WHERE idUser = ?",
@@ -38,7 +36,7 @@ const addComment = async (req, res) => {
   try {
     let { idUser, idPost, idComment, contenido } = req.query;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "INSERT INTO `comment` (idUser, idPost, idComent, contenido) VALUES (?, ?, ?, ?)",
@@ -69,9 +67,15 @@ const addComment = async (req, res) => {
 const editComment = async (req, res) => {
 
   try {
-    let { id, contenido } = req.query;
+    let { id, idUser, contenido } = req.query;
+    let { USER_ID } = req;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    if (idUser !== USER_ID.toString()) return res.json({
+      mensaje: "error",
+      data: "solo el propieratio puede editar"
+    })
+
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "UPDATE `comment` SET contenido = ? WHERE id = ?",
@@ -101,9 +105,15 @@ const editComment = async (req, res) => {
 
 const deleteComment = async (req, res) => {
   try {
-    let { id } = req.query;
+    let { id, idUser } = req.query;
+    let { USER_ID } = req;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    if (idUser !== USER_ID.toString()) return res.json({
+      mensaje: "error",
+      data: "solo el propieratio puede eliminar"
+    })
+
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "DELETE FROM `comment` WHERE id = ?;",
@@ -135,7 +145,7 @@ const getAllCommentsByPost = async (req, res) => {
   try {
     let { idPost } = req.query;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "SELECT contenido FROM `comment` WHERE idPost = ?",
@@ -167,7 +177,7 @@ const getTotalCommentsPost = async (req, res) => {
   let { idPost } = req.query;
 
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT COUNT(contenido) FROM comment WHERE idPost = ?",

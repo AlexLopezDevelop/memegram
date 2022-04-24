@@ -7,8 +7,8 @@ postSettings.get("/all/user", getAllUserPosts)
 postSettings.get("/", getPostById)
 postSettings.get("/total/user", getTotalUserPosts)
 postSettings.post("/add", privateRoute, addPost)
-postSettings.post("/edit", editPost)
-postSettings.delete("/delete", deletePost)
+postSettings.post("/edit", privateRoute, editPost)
+postSettings.delete("/delete", privateRoute, deletePost)
 
 
 module.exports = postSettings;

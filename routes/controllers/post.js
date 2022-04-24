@@ -1,11 +1,9 @@
 const mysql = require("mysql2");
-
-//const DATABASE_URL = process.env.DATABASE_URL;
-const DATABASE_URL = "mysql://1894v9ezl9vj:pscale_pw_pLVpzg34Z8RdMg1hqfQ2zs1XrKHWXweFg59oitLxelQ@0qucho5k5a9k.us-east-1.psdb.cloud/memegram?ssl={\"rejectUnauthorized\":true}"
+require('dotenv').config()
 
 const getAllPosts = async (req, res) => {
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT id, idUser, UIDimagen FROM `post`",
@@ -36,7 +34,7 @@ const getAllUserPosts = async (req, res) => {
   let { idUser } = req.query;
 
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT id, idUser, UIDimagen FROM `post` WHERE idUser = ?",
@@ -67,7 +65,7 @@ const getPostById = async (req, res) => {
   let { id } = req.query;
 
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT id, idUser, UIDimagen FROM `post` WHERE id = ?",
@@ -98,7 +96,7 @@ const getTotalUserPosts = async (req, res) => {
   let { idUser } = req.query;
 
   try {
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
     // simple query
     connection.query(
       "SELECT COUNT(*) FROM post WHERE idUser = ?",
@@ -130,7 +128,7 @@ const addPost = async (req, res) => {
   try {
     let { idUser, UIDimagen } = req.query;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "INSERT INTO `post` (idUser, UIDimagen) VALUES (?, ?)",
@@ -161,9 +159,16 @@ const addPost = async (req, res) => {
 const editPost = async (req, res) => {
 
   try {
-    let { id, UIDimagen } = req.query;
+    let { id, idUser, UIDimagen } = req.query;
+    let { USER_ID } = req;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    if (idUser !== USER_ID.toString()) return res.json({
+      mensaje: "error",
+      data: "solo el propieratio puede editar"
+    })
+
+
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "UPDATE `post` SET UIDimagen = ? WHERE id = ?",
@@ -193,9 +198,15 @@ const editPost = async (req, res) => {
 
 const deletePost = async (req, res) => {
   try {
-    let { id } = req.query;
+    let { id, idUser } = req.query;
+    let { USER_ID } = req;
 
-    const connection = mysql.createConnection(DATABASE_URL);
+    if (idUser !== USER_ID.toString()) return res.json({
+      mensaje: "error",
+      data: "solo el propieratio puede elminar"
+    })
+
+    const connection = mysql.createConnection(process.env.DATABASE_URL);
 
     connection.query(
       "DELETE FROM `post` WHERE id = ?;",

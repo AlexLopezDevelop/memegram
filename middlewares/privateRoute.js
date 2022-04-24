@@ -15,7 +15,7 @@ function privateRoute(req, res, next) {
     // verificamos el token y obtenemos el payload, en caso que no sea valido capturamos el error y lo propagamos al middleware de errores
     const decoded = jwt.verify(token, process.env.JWT_KEY);
     req.USER_ID = decoded.id
-    req.USER_EMAIL = decoded.nombre
+    req.USER_NOMBRE = decoded.nombre
     next()
   } catch (error) {
     return next('401')
