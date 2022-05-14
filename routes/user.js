@@ -24,9 +24,39 @@ const userSettings = require('express').Router({ mergeParams: true });
  *        description: The user id
  *    responses:
  *      200:
- *        description: Database response
+ *        description: User data
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: success
+ *                data:
+ *                  type: object
+ *                  properties:
+ *                    id:
+ *                      type: number
+ *                      example: 1
+ *                      description: The user id
+ *                    name:
+ *                      type: string
+ *                      example: Alex Lopez
+ *                      description: The user name
  *      404:
  *        description: User not found
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                  example: error
+ *                data:
+ *                  type: string
+ *                  example: User not found
  */
 userSettings.get("/", privateRoute, getUserById)
 
