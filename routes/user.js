@@ -11,7 +11,7 @@ const userSettings = require('express').Router({ mergeParams: true });
 
 /**
  * @swagger
- * /{id}:
+ * /user/{id}:
  *  get:
  *    summary: Get user by id
  *    tags: [User]
@@ -32,18 +32,124 @@ userSettings.get("/", privateRoute, getUserById)
 
 /**
  * @swagger
- * /all:
+ * /user/all:
  *  get:
- *    description: Get all users
+ *    summary: Get all users
  *    tags: [User]
  *    responses:
- *      '200':
- *        description: A successful response
+ *      200:
+ *        description: Returns all users
+ *      404:
+ *        description: No users found
  */
 userSettings.get("/all", privateRoute, getAllUsers)
+
+/**
+ * @swagger
+ * /user/add:
+ *  post:
+ *    summary: Add a new user
+ *    tags: [User]
+ *    parameters:
+ *      - in: path
+ *        name: nombre
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user name
+ *      - in: path
+ *        name: password
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user password
+ *    responses:
+ *      200:
+ *        description: User added
+ *      404:
+ *        description: User not added
+ */
 userSettings.post("/add", addUser)
+
+/**
+ * @swagger
+ * /user/edit:
+ *  post:
+ *    summary: Edit a user
+ *    tags: [User]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: number
+ *        required: true
+ *        description: The user id
+ *      - in: path
+ *        name: nombre
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user name
+ *      - in: path
+ *        name: password
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user password
+ *    responses:
+ *      200:
+ *        description: User edited
+ *      404:
+ *        description: User not found
+ */
 userSettings.post("/edit", privateRoute, editUser)
+
+/**
+ * @swagger
+ * /user/delete:
+ *  delete:
+ *    summary: Delete user by id
+ *    tags: [User]
+ *    parameters:
+ *      - in: path
+ *        name: id
+ *        schema:
+ *          type: number
+ *        required: true
+ *        description: The user id
+ *    responses:
+ *      200:
+ *        description: User deleted
+ *      404:
+ *        description: User not found
+ */
 userSettings.delete("/delete", privateRoute, deleteUser)
+
+/**
+ * @swagger
+ * /user/login:
+ *  get:
+ *    summary: Get login authentication
+ *    tags: [User]
+ *    parameters:
+ *      - in: path
+ *        name: nombre
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user name
+ *      - in: path
+ *        name: password
+ *        schema:
+ *          type: string
+ *        required: true
+ *        description: The user password
+ *    responses:
+ *      200:
+ *        description: Database response
+ *      404:
+ *        description: User not found
+ */
 userSettings.get("/login", loginUser)
 
 module.exports = userSettings;
